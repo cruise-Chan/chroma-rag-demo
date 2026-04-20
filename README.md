@@ -249,7 +249,7 @@ const normalized = vec.map(v => v / magnitude);
 
 - [Chroma官方文档](https://docs.trychroma.com/)
 - [Sentence Transformers](https://www.sbert.net/)
-- [2.4文章原文](../../new/2.4-向量库基础Chroma本地部署.html)
+- [2.4文章原文](https://mp.weixin.qq.com/s/QTgss8YA-T1S66-IBgdXyQ)
 
 ## 📝 License
 
