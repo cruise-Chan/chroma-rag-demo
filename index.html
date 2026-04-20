@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chroma向量库实战演示 - 2.4</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      min-height: 600px;
+    }
+
+    .left-panel {
+      padding: 30px;
+      border-right: 1px solid #e5e7eb;
+    }
+
+    .right-panel {
+      padding: 30px;
+      background: #f9fafb;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #1f2937;
+    }
+
+    .config-section {
+      margin-bottom: 25px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 5px;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .form-group textarea {
+      height: 120px;
+      resize: vertical;
+      font-family: 'Courier New', monospace;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    button.secondary {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    button.secondary:hover {
+      background: #e5e7eb;
+      box-shadow: none;
+    }
+
+    .status-box {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .status-box.success {
+      background: #d1fae5;
+      color: #065f46;
+      display: block;
+    }
+
+    .status-box.error {
+      background: #fee2e2;
+      color: #991b1b;
+      display: block;
+    }
+
+    .status-box.info {
+      background: #dbeafe;
+      color: #1e40af;
+      display: block;
+    }
+
+    .output-area {
+      background: #1f2937;
+      color: #10b981;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      min-height: 200px;
+      max-height: 500px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .document-list {
+      margin-top: 15px;
+    }
+
+    .doc-item {
+      padding: 12px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .doc-item:hover {
+      border-color: #667eea;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+    }
+
+    .doc-item.selected {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .doc-title {
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 5px;
+    }
+
+    .doc-preview {
+      font-size: 12px;
+      color: #6b7280;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .similarity-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+
+    .similarity-high {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .similarity-medium {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .similarity-low {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        grid-template-columns: 1fr;
+      }
+
+      .left-panel {
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🗄️ Chroma向量库实战演示</h1>
+      <p>2.4 文章配套代码：文档索引、向量检索、RAG问答</p>
+    </header>
+
+    <div class="main-content">
+      <!-- 左侧面板：配置和文档管理 -->
+      <div class="left-panel">
+        <h2 class="section-title">⚙️ Chroma配置</h2>
+        
+        <div class="config-section">
+          <div class="form-group">
+            <label>Chroma服务器地址</label>
+            <input type="text" id="chromaUrl" value="http://localhost:8000" placeholder="http://localhost:8000">
+          </div>
+          <div class="form-group">
+            <label>集合名称</label>
+            <input type="text" id="collectionName" value="demo-documents" placeholder="documents">
+          </div>
+          <button onclick="testConnection()">🔌 测试连接</button>
+          <button class="secondary" onclick="createCollection()">📁 创建集合</button>
+          <div id="connectionStatus" class="status-box"></div>
+        </div>
+
+        <h2 class="section-title">📄 文档索引</h2>
+        
+        <div class="config-section">
+          <div class="form-group">
+            <label>文档ID</label>
+            <input type="text" id="docId" value="doc-1" placeholder="唯一标识符">
+          </div>
+          <div class="form-group">
+            <label>文档内容</label>
+            <textarea id="docContent" placeholder="粘贴文档内容...">React性能优化的核心方法包括：使用React.memo避免不必要的重渲染，使用useMemo缓存计算结果，使用useCallback缓存函数引用，以及合理使用虚拟列表减少DOM节点数量。</textarea>
+          </div>
+          <button onclick="indexDocument()">📥 索引文档</button>
+          <button class="secondary" onclick="loadExample()">📋 加载示例</button>
+          <div id="indexStatus" class="status-box"></div>
+        </div>
+
+        <h2 class="section-title">📚 已索引文档</h2>
+        <div class="document-list" id="documentList">
+          <p style="color: #9ca3af; font-size: 13px;">暂无文档，请先索引文档</p>
+        </div>
+      </div>
+
+      <!-- 右侧面板：检索和问答 -->
+      <div class="right-panel">
+        <h2 class="section-title">🔍 向量检索</h2>
+        
+        <div class="config-section">
+          <div class="form-group">
+            <label>查询问题</label>
+            <textarea id="queryText" placeholder="输入自然语言问题..." style="height: 80px;">如何优化React性能？</textarea>
+          </div>
+          <div class="form-group">
+            <label>返回结果数</label>
+            <select id="nResults">
+              <option value="1">1条</option>
+              <option value="3" selected>3条</option>
+              <option value="5">5条</option>
+              <option value="10">10条</option>
+            </select>
+          </div>
+          <button onclick="searchDocuments()">🔎 搜索相似文档</button>
+          <div id="searchStatus" class="status-box"></div>
+        </div>
+
+        <h2 class="section-title">💬 RAG问答</h2>
+        
+        <div class="config-section">
+          <div class="form-group">
+            <label>API配置（可选，用于完整RAG）</label>
+            <input type="password" id="apiKey" placeholder="输入LLM API Key（可选）">
+          </div>
+          <button onclick="askQuestion()">🤖 AI问答</button>
+          <button class="secondary" onclick="clearResults()">🗑️ 清空结果</button>
+        </div>
+
+        <h2 class="section-title">📊 检索结果</h2>
+        <div class="output-area" id="outputArea">// 检索结果将显示在这里...
+// 包含相似度分数和相关文档片段</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
